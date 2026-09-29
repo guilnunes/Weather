@@ -2,20 +2,33 @@
 // (GitHub Pages) without server rewrites.
 
 import { useSyncExternalStore } from 'react'
+import { isMoodKey, type MoodKey } from './moods'
 
 export type Route =
   | { name: 'home' }
   | { name: 'history' }
   | { name: 'settings' }
+  /** A mood just tapped, not saved yet: `at` is when it was tapped. */
+  | { name: 'new'; mood: MoodKey; at: number }
   | { name: 'entry'; id: string }
 
 export function parseRoute(hash: string): Route {
   const path = hash.replace(/^#/, '') || '/'
   const entry = path.match(/^\/entry\/([^/]+)$/)
   if (entry) return { name: 'entry', id: decodeURIComponent(entry[1]) }
+  const fresh = path.match(/^\/new\/([a-z]+)\/(\d+)$/)
+  // A tap time in the future can only come from an edited link: ignore it.
+  if (fresh && isMoodKey(fresh[1]) && Number(fresh[2]) <= Date.now()) {
+    return { name: 'new', mood: fresh[1], at: Number(fresh[2]) }
+  }
   if (path === '/history') return { name: 'history' }
   if (path === '/settings') return { name: 'settings' }
   return { name: 'home' }
+}
+
+/** The journal for a mood tapped right now. */
+export function newEntryRoute(mood: MoodKey): Route {
+  return { name: 'new', mood, at: Date.now() }
 }
 
 export function routeToHash(route: Route): string {
@@ -26,6 +39,8 @@ export function routeToHash(route: Route): string {
       return '#/history'
     case 'settings':
       return '#/settings'
+    case 'new':
+      return `#/new/${route.mood}/${route.at}`
     case 'entry':
       return `#/entry/${encodeURIComponent(route.id)}`
   }

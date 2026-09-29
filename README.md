@@ -35,8 +35,8 @@ folder `/ (root)`**). The root holds the **built** app; its source lives in `web
 
 | Screen | What happens |
 | --- | --- |
-| **Home** (designed) | Seven colour bands. **One tap logs the mood** and opens its journal entry. The mood that is still "in the air" shows a small *now · until 17:54* tag; after the hold time it fades back to neutral on its own. |
-| **Journal entry** (designed) | Mood colour, face, date and time, and a note with **bold, italic, underline, bullets, numbers and links**. Writing is optional: *Back* keeps the mood logged; *Save* stores the note. Leaving with unsaved text asks first. The bin icon deletes a mis-tapped entry. |
+| **Home** (designed) | Seven colour bands. A tap opens the journal entry for that mood. The saved mood that is still "in the air" shows a small *now · until 17:54* tag; after the hold time it fades back to neutral on its own. |
+| **Journal entry** (designed) | Mood colour, face, date and time of the tap, and a note with **bold, italic, underline, bullets, numbers and links**. **Save** logs the mood (the note is optional) and starts its fading timer. **Back** cancels: nothing is logged and no timer starts (it asks first if something was typed). Opened from History, Back keeps the entry and the bin icon deletes it. |
 | **History** | Entries grouped by day, newest first, with a small strip of each day's colours. Tap any entry to add or edit its note later. No scores, no trend charts: a diary, not a dashboard. |
 | **Settings** | How long a mood holds (2/4/6/8 h, default 4 h), export entries as JSON, add sample entries, delete everything. |
 

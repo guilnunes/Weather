@@ -7,6 +7,7 @@ describe('router', () => {
       { name: 'home' },
       { name: 'history' },
       { name: 'settings' },
+      { name: 'new', mood: 'anxious', at: 1790000000000 },
       { name: 'entry', id: 'abc-123' },
     ]
     for (const r of routes) expect(parseRoute(routeToHash(r))).toEqual(r)
@@ -15,5 +16,8 @@ describe('router', () => {
   it('falls back to Home for empty or unknown hashes', () => {
     expect(parseRoute('')).toEqual({ name: 'home' })
     expect(parseRoute('#/nope')).toEqual({ name: 'home' })
+    expect(parseRoute('#/new/euphoric/1790000000000')).toEqual({ name: 'home' })
+    expect(parseRoute('#/new/sad/soon')).toEqual({ name: 'home' })
+    expect(parseRoute(`#/new/sad/${Date.now() + 60_000}`)).toEqual({ name: 'home' })
   })
 })

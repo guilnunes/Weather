@@ -117,9 +117,12 @@ export function createStore(storage: Storage | null) {
 
     getEntry: (id: string) => state.entries.find((e) => e.id === id),
 
-    /** One tap = one logged mood. The journal note is optional and added later. */
-    logMood(mood: MoodKey, now = Date.now()): Entry {
-      const entry: Entry = { id: newId(), mood, createdAt: now, updatedAt: now, note: '' }
+    /**
+     * Records a mood, when the person saves it on the journal screen. `at` is
+     * when the mood was tapped; its fading timer runs from then.
+     */
+    logMood(mood: MoodKey, at = Date.now(), note = ''): Entry {
+      const entry: Entry = { id: newId(), mood, createdAt: at, updatedAt: at, note: normalizeNote(note) }
       commit({ ...state, entries: sorted([entry, ...state.entries]) })
       return entry
     },

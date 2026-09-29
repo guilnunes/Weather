@@ -1,34 +1,77 @@
 import { ChevronLeft, Save, Trash2 } from 'lucide-react'
-import { Suspense, lazy, useState, type CSSProperties } from 'react'
+import { Suspense, lazy, useRef, useState, type CSSProperties } from 'react'
 import { Dialog } from '../components/Dialog'
 import { Face } from '../components/Face'
 import { formatDate, formatTime } from '../lib/format'
 import { useThemeColor } from '../lib/hooks'
-import { getMood } from '../lib/moods'
+import { getMood, type MoodKey } from '../lib/moods'
 import { goBack } from '../lib/router'
-import { normalizeNote, store, useStoreState, type Entry } from '../lib/store'
+import { normalizeNote, store, useStoreState } from '../lib/store'
 
 // The editor is the heaviest part of the app, so it loads in its own chunk
 // (and is warmed up in the background from main.tsx).
 const RichTextEditor = lazy(() => import('../components/RichTextEditor'))
 
 /**
- * The journal entry for one logged mood. The mood is already saved by the
- * time this opens (one tap = logged); writing here is optional and can
- * happen now or later from History.
+ * A mood just tapped on Home. Nothing is recorded until Save: going back
+ * cancels it, so no entry is kept and no fading timer starts.
  */
+export function NewEntryScreen({ mood, at }: { mood: MoodKey; at: number }) {
+  const [savedHere, setSavedHere] = useState(false)
+  const alreadySaved = useStoreState().entries.find((e) => e.mood === mood && e.createdAt === at)
+
+  // Reached again after saving (e.g. the browser's Forward button): show the
+  // saved entry rather than offering to log the same mood twice.
+  if (alreadySaved && !savedHere) return <EntryScreen id={alreadySaved.id} />
+
+  return (
+    <JournalScreen
+      key={`${mood}-${at}`}
+      moodKey={mood}
+      at={at}
+      initialNote=""
+      onSave={(note) => {
+        setSavedHere(true)
+        store.logMood(mood, at, note)
+      }}
+      discardMessage={`This ${getMood(mood).label.toLowerCase()} mood won’t be logged, and your note will be lost.`}
+    />
+  )
+}
+
+/** An entry already saved, opened from History to read, annotate or delete. */
 export function EntryScreen({ id }: { id: string }) {
   const entry = useStoreState().entries.find((e) => e.id === id)
   if (!entry) return <MissingEntry />
-  // Keyed so switching entries starts a fresh editor.
-  return <EntryEditor key={entry.id} entry={entry} />
+  return (
+    <JournalScreen
+      // Keyed so switching entries starts a fresh editor.
+      key={entry.id}
+      moodKey={entry.mood}
+      at={entry.createdAt}
+      initialNote={entry.note}
+      onSave={(note) => store.saveNote(entry.id, note)}
+      onDelete={() => store.deleteEntry(entry.id)}
+      discardMessage="Your mood stays logged. Only the changes to your note will be lost."
+    />
+  )
 }
 
-function EntryEditor({ entry }: { entry: Entry }) {
-  const mood = getMood(entry.mood)
-  const [draft, setDraft] = useState(entry.note)
+interface JournalProps {
+  moodKey: MoodKey
+  at: number
+  initialNote: string
+  onSave: (note: string) => void
+  onDelete?: () => void
+  discardMessage: string
+}
+
+function JournalScreen({ moodKey, at, initialNote, onSave, onDelete, discardMessage }: JournalProps) {
+  const mood = getMood(moodKey)
+  const [draft, setDraft] = useState(initialNote)
   const [confirm, setConfirm] = useState<'discard' | 'delete' | null>(null)
-  const dirty = normalizeNote(draft) !== entry.note
+  const saved = useRef(false)
+  const dirty = normalizeNote(draft) !== initialNote
   useThemeColor(mood.color)
 
   function onBack() {
@@ -36,16 +79,20 @@ function EntryEditor({ entry }: { entry: Entry }) {
     else goBack()
   }
 
-  function onSave() {
-    store.saveNote(entry.id, draft)
+  function save() {
+    // Leaving takes a moment; a second tap must not save twice.
+    if (saved.current) return
+    saved.current = true
+    onSave(draft)
     goBack()
   }
 
-  function onDelete() {
+  function remove() {
+    if (!onDelete) return
     // Delete once we've left, so this screen never flashes "missing".
     const done = () => {
       window.removeEventListener('hashchange', done)
-      store.deleteEntry(entry.id)
+      onDelete()
     }
     window.addEventListener('hashchange', done)
     goBack()
@@ -60,28 +107,30 @@ function EntryEditor({ entry }: { entry: Entry }) {
         <button type="button" className="round-btn" aria-label="Back" onClick={onBack}>
           <ChevronLeft size={30} strokeWidth={2.6} />
         </button>
-        <button
-          type="button"
-          className="round-btn is-quiet"
-          aria-label="Delete this entry"
-          onClick={() => setConfirm('delete')}
-        >
-          <Trash2 size={20} strokeWidth={2.2} />
-        </button>
+        {onDelete && (
+          <button
+            type="button"
+            className="round-btn is-quiet"
+            aria-label="Delete this entry"
+            onClick={() => setConfirm('delete')}
+          >
+            <Trash2 size={20} strokeWidth={2.2} />
+          </button>
+        )}
       </header>
 
       <div className="entry-hero">
         <Face mood={mood.key} size={100} />
         <h1 className="entry-mood">{mood.label}</h1>
-        <p className="entry-date">{formatDate(entry.createdAt)}</p>
-        <p className="entry-time">{formatTime(entry.createdAt)}</p>
+        <p className="entry-date">{formatDate(at)}</p>
+        <p className="entry-time">{formatTime(at)}</p>
       </div>
 
       <Suspense fallback={<div className="journal-card" />}>
-        <RichTextEditor initialHtml={entry.note} placeholder="What’s on your mind?" onChange={setDraft} />
+        <RichTextEditor initialHtml={initialNote} placeholder="What’s on your mind?" onChange={setDraft} />
       </Suspense>
 
-      <button type="button" className="save-btn" onClick={onSave}>
+      <button type="button" className="save-btn" onClick={save}>
         <Save size={26} strokeWidth={2.4} aria-hidden="true" />
         Save
       </button>
@@ -89,11 +138,11 @@ function EntryEditor({ entry }: { entry: Entry }) {
       {confirm === 'discard' && (
         <Dialog
           title="Leave without saving?"
-          message={`Your ${mood.label.toLowerCase()} mood stays logged. Only the changes to your note will be lost.`}
+          message={discardMessage}
           onClose={() => setConfirm(null)}
           actions={[
             { label: 'Keep writing', onClick: () => setConfirm(null), variant: 'primary' },
-            { label: 'Discard changes', onClick: () => goBack(), variant: 'danger' },
+            { label: 'Discard', onClick: () => goBack(), variant: 'danger' },
           ]}
         />
       )}
@@ -104,7 +153,7 @@ function EntryEditor({ entry }: { entry: Entry }) {
           onClose={() => setConfirm(null)}
           actions={[
             { label: 'Cancel', onClick: () => setConfirm(null) },
-            { label: 'Delete', onClick: onDelete, variant: 'danger' },
+            { label: 'Delete', onClick: remove, variant: 'danger' },
           ]}
         />
       )}

@@ -4,10 +4,13 @@ import { TabBar } from '../components/TabBar'
 import { formatTime } from '../lib/format'
 import { useNow, useThemeColor } from '../lib/hooks'
 import { MOODS, type MoodKey } from '../lib/moods'
-import { navigate } from '../lib/router'
-import { currentMood, store, useStoreState } from '../lib/store'
+import { navigate, newEntryRoute } from '../lib/router'
+import { currentMood, useStoreState } from '../lib/store'
 
-/** The colour bands. One tap logs the mood, then offers the (optional) journal. */
+/**
+ * The colour bands. A tap opens the journal for that mood; the mood is only
+ * recorded (and starts fading) once it is saved there.
+ */
 export function Home() {
   const state = useStoreState()
   const now = useNow()
@@ -15,8 +18,7 @@ export function Home() {
   useThemeColor(MOODS[0].color)
 
   function pick(mood: MoodKey) {
-    const entry = store.logMood(mood)
-    navigate({ name: 'entry', id: entry.id })
+    navigate(newEntryRoute(mood))
   }
 
   return (

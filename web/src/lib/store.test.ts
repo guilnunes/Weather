@@ -8,7 +8,7 @@ const T0 = new Date('2026-09-26T10:24:00').getTime()
 describe('store', () => {
   beforeEach(() => localStorage.clear())
 
-  it('logs a mood with one call and persists it', () => {
+  it('logs a mood and persists it', () => {
     const store = createStore(localStorage)
     const entry = store.logMood('anxious', T0)
     expect(entry).toMatchObject({ mood: 'anxious', createdAt: T0, note: '' })
@@ -16,6 +16,14 @@ describe('store', () => {
     const reloaded = createStore(localStorage)
     expect(reloaded.getState().entries).toHaveLength(1)
     expect(reloaded.getEntry(entry.id)?.mood).toBe('anxious')
+  })
+
+  it('logs a mood together with its note, timed from the tap', () => {
+    const store = createStore(localStorage)
+    const entry = store.logMood('sad', T0, '<p>Missed the call.</p>')
+    expect(entry).toMatchObject({ createdAt: T0, note: '<p>Missed the call.</p>' })
+    expect(store.logMood('sad', T0 + 1, '<p></p>').note).toBe('')
+    expect(currentMood(store.getState(), T0 + HOUR)?.entry.createdAt).toBe(T0 + 1)
   })
 
   it('keeps entries newest first', () => {
