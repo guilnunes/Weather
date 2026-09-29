@@ -21,6 +21,8 @@ defaults:
 jobs:
   check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # to commit the refreshed site on the default branch
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,37 +33,30 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm test
+      # Also copies the built app to the repo root (web/scripts/publish-site.mjs).
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: web/dist
 
-  # Publishes the prototype to GitHub Pages from the default branch.
-  # Skips (without failing) until Pages is turned on in the repo settings:
-  # Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
-  deploy:
-    needs: check
-    if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Check that Pages is enabled
-        id: pages
+      # GitHub Pages serves the repo root of the default branch ("Deploy from a
+      # branch"), so the built copy there must match the source in web/.
+      # On the default branch a stale copy is refreshed and committed; anywhere
+      # else it fails, asking for `npm run build` to be committed.
+      - name: Keep the published site in sync
         working-directory: .
         env:
-          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
-          if [ "$(gh api "repos/${{ github.repository }}/pages" --jq .build_type 2>/dev/null)" = "workflow" ]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::notice::GitHub Pages is not enabled with the 'GitHub Actions' source yet, so the deploy was skipped."
+          git add -A -- . ':!web'
+          if git diff --cached --quiet; then
+            echo "The published site in the repo root is up to date."
+            exit 0
           fi
-      - name: Deploy
-        id: deployment
-        if: steps.pages.outputs.enabled == 'true'
-        uses: actions/deploy-pages@v4
+          git diff --cached --stat
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF" = "refs/heads/$DEFAULT_BRANCH" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Update published site from web/"
+            git push
+          else
+            echo "::error::The site in the repo root is out of date. Run 'npm run build' in web/ and commit the result."
+            exit 1
+          fi
