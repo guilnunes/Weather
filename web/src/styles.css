@@ -125,11 +125,11 @@ button:disabled {
   stroke: none;
 }
 
-/* White on the neutral yellow is faint; a soft warm shadow keeps it legible
+/* White on the yellow (Anxious) is faint; a soft warm shadow keeps it legible
    without touching the approved colour. */
-.mood-neutral .face,
-.mood-neutral .band-label,
-.entry.mood-neutral .entry-hero {
+.mood-anxious .face,
+.mood-anxious .band-label,
+.entry.mood-anxious .entry-hero {
   filter: drop-shadow(0 1px 1.5px rgba(130, 90, 0, 0.45));
 }
 
@@ -200,7 +200,7 @@ button:disabled {
 .band:first-of-type .band-now {
   top: calc(50% + var(--safe-top) / 2);
 }
-.mood-neutral .band-now {
+.mood-anxious .band-now {
   background: rgba(120, 85, 0, 0.22);
 }
 

@@ -13,7 +13,7 @@ interface SampleSeed {
 }
 
 const SEEDS: SampleSeed[] = [
-  { daysAgo: 1, hour: 8, minute: 12, mood: 'peaceful', note: '<p>Slept well for once. Coffee on the balcony before anyone woke up.</p>' },
+  { daysAgo: 1, hour: 8, minute: 12, mood: 'happy', note: '<p>Slept well for once. Coffee on the balcony before anyone woke up.</p>' },
   { daysAgo: 2, hour: 22, minute: 40, mood: 'sad', note: '' },
   { daysAgo: 2, hour: 18, minute: 5, mood: 'angry', note: '<p>Bus didn’t show up <em>again</em>. Walked home in the rain.</p>' },
   { daysAgo: 2, hour: 9, minute: 30, mood: 'neutral', note: '' },
@@ -21,12 +21,12 @@ const SEEDS: SampleSeed[] = [
   { daysAgo: 3, hour: 10, minute: 24, mood: 'anxious', note: '<p>Presentation at 3pm. Chest tight all morning.</p><p>Things that helped:</p><ul><li><p>Breathing exercise</p></li><li><p>Texting Bia</p></li></ul>' },
   { daysAgo: 4, hour: 23, minute: 50, mood: 'depressed', note: '' },
   { daysAgo: 4, hour: 14, minute: 0, mood: 'sad', note: '<p>Missed Mom’s call. Feeling far from home today.</p>' },
-  { daysAgo: 5, hour: 11, minute: 45, mood: 'peaceful', note: '<p>Long walk by the river after lunch. Quiet.</p>' },
-  { daysAgo: 6, hour: 19, minute: 20, mood: 'anxious', note: '' },
+  { daysAgo: 5, hour: 11, minute: 45, mood: 'neutral', note: '<p>Long walk by the river after lunch. Quiet.</p>' },
+  { daysAgo: 6, hour: 19, minute: 20, mood: 'overwhelmed', note: '' },
   { daysAgo: 6, hour: 8, minute: 55, mood: 'neutral', note: '' },
   { daysAgo: 7, hour: 21, minute: 10, mood: 'happy', note: '<p>Finished the book. Good ending.</p>' },
   { daysAgo: 8, hour: 16, minute: 35, mood: 'angry', note: '<p>Argument with my landlord about the repairs.</p>' },
-  { daysAgo: 8, hour: 9, minute: 5, mood: 'peaceful', note: '' },
+  { daysAgo: 8, hour: 9, minute: 5, mood: 'overwhelmed', note: '<p>Three deadlines, the move, and Mom’s appointment. Too much at once.</p>' },
   { daysAgo: 9, hour: 13, minute: 30, mood: 'neutral', note: '<p>Ordinary day. That’s fine.</p>' },
 ]
 

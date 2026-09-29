@@ -47,12 +47,6 @@ const FACES: Record<MoodKey, ReactNode> = {
       <path d="M30 44 H70 Q70 74 50 74 Q30 74 30 44 Z" />
     </>
   ),
-  peaceful: (
-    <>
-      {closedEyesDown}
-      <path d="M28 52 Q50 78 72 52" />
-    </>
-  ),
   neutral: (
     <>
       {dotEyes(18)}
@@ -64,6 +58,14 @@ const FACES: Record<MoodKey, ReactNode> = {
       {worriedBrows}
       {dotEyes(34)}
       <path d="M24 70 Q30 76 37 69 Q50 54 63 69 Q70 76 76 70" />
+    </>
+  ),
+  overwhelmed: (
+    <>
+      {/* Eyes squeezed shut (> <) and a small open mouth: too much at once. */}
+      <path d="M15 8 L34 18 L15 28" />
+      <path d="M85 8 L66 18 L85 28" />
+      <ellipse cx="50" cy="63" rx="10" ry="12" />
     </>
   ),
   angry: (

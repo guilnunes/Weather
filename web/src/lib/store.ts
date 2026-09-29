@@ -2,7 +2,7 @@
 // Nothing is sent anywhere: this is the private personal layer.
 
 import { useSyncExternalStore } from 'react'
-import { isMoodKey, type MoodKey } from './moods'
+import { isMoodKey, RETIRED_MOODS, type MoodKey } from './moods'
 import { sampleEntries } from './sample'
 
 export interface Entry {
@@ -60,7 +60,13 @@ function parse(raw: string | null): State {
   try {
     const data = JSON.parse(raw)
     const entries: Entry[] = Array.isArray(data?.entries)
-      ? data.entries.filter(
+      ? data.entries
+          .map((e: Partial<Entry> | null) =>
+            e && typeof e.mood === 'string' && e.mood in RETIRED_MOODS
+              ? { ...e, mood: RETIRED_MOODS[e.mood] }
+              : e,
+          )
+          .filter(
           (e: Partial<Entry>) =>
             typeof e?.id === 'string' && isMoodKey(e.mood) && typeof e.createdAt === 'number',
         )

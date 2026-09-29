@@ -60,9 +60,9 @@ describe('store', () => {
     const store = createStore(localStorage)
     let calls = 0
     const unsubscribe = store.subscribe(() => calls++)
-    store.logMood('peaceful', T0)
+    store.logMood('neutral', T0)
     unsubscribe()
-    store.logMood('peaceful', T0)
+    store.logMood('neutral', T0)
     expect(calls).toBe(1)
   })
 
@@ -85,6 +85,14 @@ describe('store', () => {
     expect(state.entries.map((e) => e.id)).toEqual(['ok'])
     expect(state.entries[0]).toMatchObject({ note: '', updatedAt: T0 })
     expect(state.settings.holdHours).toBe(4)
+  })
+
+  it('keeps entries saved with the retired Peaceful mood, as Neutral', () => {
+    localStorage.setItem(
+      'weather.v1',
+      JSON.stringify({ entries: [{ id: 'old', mood: 'peaceful', createdAt: T0, note: '<p>Walk.</p>' }] }),
+    )
+    expect(createStore(localStorage).getEntry('old')).toMatchObject({ mood: 'neutral', note: '<p>Walk.</p>' })
   })
 
   it('works in memory when storage is unavailable', () => {
@@ -126,8 +134,8 @@ describe('currentMood (a mood is weather: it fades)', () => {
   it('uses the most recent mood, and a new tap replaces it', () => {
     const store = createStore(null)
     store.logMood('angry', T0)
-    store.logMood('peaceful', T0 + HOUR)
-    expect(currentMood(store.getState(), T0 + 2 * HOUR)?.entry.mood).toBe('peaceful')
+    store.logMood('overwhelmed', T0 + HOUR)
+    expect(currentMood(store.getState(), T0 + 2 * HOUR)?.entry.mood).toBe('overwhelmed')
   })
 
   it('is empty when nothing has been logged', () => {
@@ -151,9 +159,9 @@ describe('palette', () => {
       'Depressed',
       'Sad',
       'Happy',
-      'Peaceful',
       'Neutral',
       'Anxious',
+      'Overwhelmed',
       'Angry',
     ])
     expect(new Set(MOODS.map((m) => m.color)).size).toBe(MOODS.length)

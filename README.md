@@ -59,8 +59,12 @@ web/                          ← the app's source
 ```
 
 To change a mood's name or colour, edit `web/src/lib/moods.ts` only. Colours were sampled from
-the approved screens. The darker "Save" shade was sampled for Anxious; the other six follow the
-same shift and should be confirmed.
+the approved screens. The darker "Save" shade was sampled from the orange screen; the others follow
+the same shift and should be confirmed.
+
+Current palette, top to bottom: Depressed (purple), Sad (blue), Happy (light blue), Neutral (green),
+Anxious (yellow), Overwhelmed (orange), Angry (red). Peaceful was removed; entries saved with it
+load as Neutral.
 
 ## Checks
 
