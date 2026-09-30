@@ -24,6 +24,7 @@ const worriedBrows = (
     <path d="M86 20 Q76 8 64 6" />
   </>
 )
+const wavyMouth = <path d="M24 70 Q30 76 37 69 Q50 54 63 69 Q70 76 76 70" />
 const frown = <path d="M31 74 Q50 52 69 74" />
 
 const FACES: Record<MoodKey, ReactNode> = {
@@ -57,16 +58,15 @@ const FACES: Record<MoodKey, ReactNode> = {
     <>
       {worriedBrows}
       {dotEyes(34)}
-      <path d="M24 70 Q30 76 37 69 Q50 54 63 69 Q70 76 76 70" />
+      {wavyMouth}
     </>
   ),
   overwhelmed: (
     <>
-      {/* Straining: eyes squeezed shut (> <), gritted teeth, sweat drops. */}
+      {/* Straining: eyes squeezed shut (> <), a wavy mouth, sweat drops. */}
       <path d="M17 10 L35 20 L17 30" />
       <path d="M83 10 L65 20 L83 30" />
-      <rect x="24" y="48" width="52" height="26" rx="9" />
-      <path d="M26 61 H74 M37.5 50 V72 M50 50 V72 M62.5 50 V72" strokeWidth="3.5" />
+      {wavyMouth}
       <path d="M101 -6 Q111 10 101 16 Q91 10 101 -6 Z" className="face-fill" />
       <path d="M-1 22 Q8 36 -1 42 Q-10 36 -1 22 Z" className="face-fill" />
     </>
