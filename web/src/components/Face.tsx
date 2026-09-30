@@ -62,10 +62,13 @@ const FACES: Record<MoodKey, ReactNode> = {
   ),
   overwhelmed: (
     <>
-      {/* Eyes squeezed shut (> <) and a small open mouth: too much at once. */}
-      <path d="M15 8 L34 18 L15 28" />
-      <path d="M85 8 L66 18 L85 28" />
-      <ellipse cx="50" cy="63" rx="10" ry="12" />
+      {/* Straining: eyes squeezed shut (> <), gritted teeth, sweat drops. */}
+      <path d="M17 10 L35 20 L17 30" />
+      <path d="M83 10 L65 20 L83 30" />
+      <rect x="24" y="48" width="52" height="26" rx="9" />
+      <path d="M26 61 H74 M37.5 50 V72 M50 50 V72 M62.5 50 V72" strokeWidth="3.5" />
+      <path d="M101 -6 Q111 10 101 16 Q91 10 101 -6 Z" className="face-fill" />
+      <path d="M-1 22 Q8 36 -1 42 Q-10 36 -1 22 Z" className="face-fill" />
     </>
   ),
   angry: (
