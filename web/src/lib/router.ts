@@ -11,6 +11,10 @@ export type Route =
   /** A mood just tapped, not saved yet: `at` is when it was tapped. */
   | { name: 'new'; mood: MoodKey; at: number }
   | { name: 'entry'; id: string }
+  // Signed-out pages.
+  | { name: 'signin' }
+  | { name: 'signup' }
+  | { name: 'forgot' }
 
 export function parseRoute(hash: string): Route {
   const path = hash.replace(/^#/, '') || '/'
@@ -23,6 +27,9 @@ export function parseRoute(hash: string): Route {
   }
   if (path === '/history') return { name: 'history' }
   if (path === '/settings') return { name: 'settings' }
+  if (path === '/signin') return { name: 'signin' }
+  if (path === '/signup') return { name: 'signup' }
+  if (path === '/forgot') return { name: 'forgot' }
   return { name: 'home' }
 }
 
@@ -43,6 +50,10 @@ export function routeToHash(route: Route): string {
       return `#/new/${route.mood}/${route.at}`
     case 'entry':
       return `#/entry/${encodeURIComponent(route.id)}`
+    case 'signin':
+    case 'signup':
+    case 'forgot':
+      return `#/${route.name}`
   }
 }
 

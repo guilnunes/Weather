@@ -9,6 +9,9 @@ describe('router', () => {
       { name: 'settings' },
       { name: 'new', mood: 'anxious', at: 1790000000000 },
       { name: 'entry', id: 'abc-123' },
+      { name: 'signin' },
+      { name: 'signup' },
+      { name: 'forgot' },
     ]
     for (const r of routes) expect(parseRoute(routeToHash(r))).toEqual(r)
   })

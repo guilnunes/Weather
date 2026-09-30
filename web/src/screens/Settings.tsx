@@ -1,15 +1,51 @@
-import { Download, Sparkles, Trash2 } from 'lucide-react'
+import { Download, LogOut, Sparkles, Trash2, UserX } from 'lucide-react'
 import { useState } from 'react'
 import { Dialog } from '../components/Dialog'
 import { TabBar } from '../components/TabBar'
+import { deleteAccount, friendlyError, signOut, useAuth } from '../lib/auth'
 import { useThemeColor } from '../lib/hooks'
-import { HOLD_HOURS_OPTIONS, store, useStoreState } from '../lib/store'
+import { clearLocalCopy, HOLD_HOURS_OPTIONS, store, useStoreState, useSyncStatus, type SyncStatus } from '../lib/store'
+
+const SYNC_TEXT: Record<SyncStatus, string> = {
+  local: '',
+  syncing: 'Syncing…',
+  synced: 'All changes saved to your account.',
+  offline: 'Offline: changes are saved on this device and will sync when you’re back online.',
+}
 
 const PAGE_BG = '#F7F4F1'
 
 export function Settings() {
   const { entries, settings } = useStoreState()
+  const auth = useAuth()
+  const user = auth.status === 'signedIn' ? auth.user : null
+  const sync = useSyncStatus()
   const [confirmClear, setConfirmClear] = useState(false)
+  const [confirm, setConfirm] = useState<'signout' | 'delete-account' | null>(null)
+  const [accountError, setAccountError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  async function doSignOut() {
+    if (!user) return
+    setBusy(true)
+    await signOut()
+    // Don't leave a readable copy of the journal behind on a shared device.
+    clearLocalCopy(user.id)
+  }
+
+  async function doDeleteAccount() {
+    if (!user) return
+    setBusy(true)
+    setAccountError(null)
+    try {
+      await deleteAccount()
+      clearLocalCopy(user.id)
+    } catch (error) {
+      setAccountError(friendlyError(error))
+      setBusy(false)
+      setConfirm(null)
+    }
+  }
   const [notice, setNotice] = useState<string | null>(null)
   useThemeColor(PAGE_BG)
 
@@ -62,8 +98,8 @@ export function Settings() {
         <section className="card">
           <h2 className="card-title">Your journal</h2>
           <p className="card-note">
-            Everything stays on this device. Nothing is sent anywhere. {entries.length}{' '}
-            {entries.length === 1 ? 'entry' : 'entries'} saved.
+            Saved to your account, readable only by you. {entries.length}{' '}
+            {entries.length === 1 ? 'entry' : 'entries'}. {SYNC_TEXT[sync]}
           </p>
           <div className="row-list">
             <button type="button" className="row-btn" onClick={exportEntries} disabled={entries.length === 0}>
@@ -93,6 +129,36 @@ export function Settings() {
           </div>
         </section>
 
+        <section className="card">
+          <h2 className="card-title">Account</h2>
+          <p className="card-note">Signed in as {user?.email ?? 'you'}.</p>
+          {accountError && (
+            <p className="card-note is-error" role="alert">
+              {accountError}
+            </p>
+          )}
+          <div className="row-list">
+            <button
+              type="button"
+              className="row-btn"
+              disabled={busy}
+              onClick={() => (store.hasPending() ? setConfirm('signout') : void doSignOut())}
+            >
+              <LogOut size={20} aria-hidden="true" />
+              Sign out
+            </button>
+            <button
+              type="button"
+              className="row-btn is-danger"
+              disabled={busy}
+              onClick={() => setConfirm('delete-account')}
+            >
+              <UserX size={20} aria-hidden="true" />
+              Delete account
+            </button>
+          </div>
+        </section>
+
         <section className="card about">
           <h2 className="card-title">About</h2>
           <p className="card-note">
@@ -107,10 +173,32 @@ export function Settings() {
       </main>
       <TabBar active="settings" />
 
+      {confirm === 'signout' && (
+        <Dialog
+          title="Sign out now?"
+          message="Some changes haven’t reached your account yet (you seem to be offline). Signing out now will lose them."
+          onClose={() => setConfirm(null)}
+          actions={[
+            { label: 'Stay signed in', onClick: () => setConfirm(null), variant: 'primary' },
+            { label: 'Sign out anyway', onClick: () => void doSignOut(), variant: 'danger' },
+          ]}
+        />
+      )}
+      {confirm === 'delete-account' && (
+        <Dialog
+          title="Delete your account?"
+          message="Your account and every mood and note in it will be permanently deleted. Export them first if you want a copy. This can’t be undone."
+          onClose={() => setConfirm(null)}
+          actions={[
+            { label: 'Cancel', onClick: () => setConfirm(null) },
+            { label: busy ? 'Deleting…' : 'Delete account', onClick: () => void doDeleteAccount(), variant: 'danger' },
+          ]}
+        />
+      )}
       {confirmClear && (
         <Dialog
           title="Delete all entries?"
-          message="Every mood and note on this device will be removed. This can’t be undone."
+          message="Every mood and note in your account will be removed, on all your devices. This can’t be undone."
           onClose={() => setConfirmClear(false)}
           actions={[
             { label: 'Cancel', onClick: () => setConfirmClear(false) },

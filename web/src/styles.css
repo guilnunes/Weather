@@ -774,3 +774,243 @@ button:disabled {
     transition: none !important;
   }
 }
+
+/* ---------- Account screens (sign in, sign up, consent) ---------- */
+
+.auth {
+  overflow-y: auto;
+}
+.auth-scroll {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: calc(var(--safe-top) + 44px) 24px calc(var(--safe-bottom) + 32px);
+}
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(60, 30, 80, 0.18);
+}
+.auth-brand span {
+  flex: 1;
+}
+.auth-loading {
+  align-items: center;
+  justify-content: center;
+}
+.auth-loading .auth-brand {
+  animation: breathe 1.6s ease-in-out infinite;
+}
+@keyframes breathe {
+  50% {
+    transform: scale(0.92);
+    opacity: 0.8;
+  }
+}
+.auth-app {
+  margin: 16px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--ink-soft);
+}
+.auth-title {
+  margin: 4px 0 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  line-height: 1.15;
+}
+.auth-subtitle {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.auth-subtitle strong {
+  color: var(--ink);
+}
+
+.auth-google,
+.auth-primary,
+.auth-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 52px;
+  border-radius: 26px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.auth-google {
+  margin-top: 28px;
+  background: #ffffff;
+  color: #1f1f1f;
+  border: 1.5px solid #dadce0;
+}
+.auth-google:active {
+  background: #f5f5f5;
+}
+.auth-primary {
+  margin-top: 8px;
+  background: var(--ink);
+  color: #ffffff;
+}
+.auth-secondary {
+  margin-top: 10px;
+  background: #ece7e2;
+  color: var(--ink);
+}
+.auth-primary:active,
+.auth-secondary:active {
+  filter: brightness(0.94);
+}
+.auth-google:focus-visible,
+.auth-primary:focus-visible,
+.auth-secondary:focus-visible,
+.auth-link:focus-visible,
+.auth-reveal:focus-visible {
+  outline-color: var(--tab-active);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 6px;
+  color: #a3978f;
+  font-size: 13px;
+  font-weight: 600;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+.auth-field {
+  margin-top: 14px;
+}
+.auth-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.auth-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 6px 0 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  color: #a3978f;
+}
+.auth-input-wrap:focus-within {
+  border-color: var(--tab-active);
+  color: var(--ink-soft);
+}
+.auth-input-wrap input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px; /* 16px keeps iOS from zooming in */
+}
+.auth-reveal {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  color: #8f837b;
+}
+.auth-hint {
+  margin: 6px 0 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+.auth-link {
+  color: #1f7fc4;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.auth-forgot {
+  align-self: flex-end;
+  margin-top: 10px;
+  padding: 4px 0;
+  font-size: 14px;
+}
+.auth-error {
+  min-height: 20px;
+  margin: 12px 0 4px;
+  color: var(--danger);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.auth-error:empty {
+  min-height: 8px;
+  margin: 4px 0;
+}
+.auth-note {
+  margin: 20px 0 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.auth-switch {
+  margin: 24px 0 0;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+.consent-list {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: #ffffff;
+}
+.consent-list li {
+  display: flex;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.consent-list li + li {
+  margin-top: 14px;
+}
+.consent-list svg {
+  flex: none;
+  margin-top: 1px;
+  color: #6f655f;
+}
+.consent-list + .auth-note + .auth-error + .auth-primary {
+  margin-top: 4px;
+}
+
+.card-note.is-error {
+  color: var(--danger);
+}

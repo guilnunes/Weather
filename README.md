@@ -40,8 +40,33 @@ folder `/ (root)`**). The root holds the **built** app; its source lives in `web
 | **History** | Entries grouped by day, newest first, with a small strip of each day's colours. Tap any entry to add or edit its note later. No scores, no trend charts: a diary, not a dashboard. |
 | **Settings** | How long a mood holds (2/4/6/8 h, default 4 h), export entries as JSON, add sample entries, delete everything. |
 
-**Privacy:** everything is stored in the browser on that device (`localStorage`). Nothing is sent
-anywhere. Clearing the browser's site data clears the journal.
+## Accounts and data (Supabase)
+
+An account is required. People sign up or sign in with **Google** or **email and password**
+(with email confirmation and "forgot password"). On first sign-in they give explicit consent to
+store mood and journal data (it counts as sensitive, health-related data under LGPD and GDPR).
+
+- **Backend:** Supabase project `weather` (`rshyjtdlvmhevrnwwupz`, São Paulo region).
+  Tables `entries` and `user_settings`, with row-level security so each person can only read and
+  write their own rows. Schema: `supabase/migrations/`.
+- **Sync:** the app keeps a copy on the device (fast, works offline) and queues every change for the
+  account; the queue is retried until it goes through. The account is the source of truth on sign-in.
+  Entries made on a device before accounts existed are moved into the first account that signs in.
+- **Sign out** removes the device copy. **Delete account** (Settings) removes the account and all
+  its data, through the `delete-account` Edge Function (`supabase/functions/`).
+- **Config:** `web/.env` holds the project URL and publishable key. Both are public by design; the
+  database's row-level security is what protects the data.
+
+### One-time setup in the Supabase dashboard (only the project owner can do this)
+
+1. **URLs** (Authentication → URL Configuration): Site URL `https://guilnunes.github.io/Weather/`;
+   Redirect URLs `https://guilnunes.github.io/Weather/` and `http://localhost:5173/`.
+2. **Google** (Authentication → Sign In / Providers → Google): enable, and paste the Client ID and
+   secret of a Google Cloud "OAuth client ID" (Web application) whose authorized redirect URI is
+   `https://rshyjtdlvmhevrnwwupz.supabase.co/auth/v1/callback`.
+3. **Email** (Authentication → Emails → SMTP): Supabase's built-in mailer only sends to the project's
+   team members and a few emails per hour. Set up your own SMTP (e.g. Resend) before others sign up
+   by email.
 
 ## Where things live
 
@@ -79,5 +104,5 @@ npm run build     # also refreshes the published copy in the repo root
 
 - More flows still to be designed (onboarding, the self-activated **"I need support"** button, reflection / gentle patterns).
 - The opt-in **protection layer** (sharing an ephemeral signal with other apps).
-- Sync or backup across devices; import of an exported file.
+- Import of an exported file; end-to-end encryption of notes (recommended next for privacy).
 - Offline caching (service worker).
